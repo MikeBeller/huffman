@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+const NULLCHAR = 0x07f
+
 type Node struct {
 	freq  float64
 	c     rune
@@ -59,15 +61,78 @@ func computeCodeTree(s string) *Node {
 	for len(*h) > 1 {
 		r := heap.Pop(h).(*Node)
 		l := heap.Pop(h).(*Node)
-		t := &Node{l.freq + r.freq, 0, l, r}
+		t := &Node{l.freq + r.freq, NULLCHAR, l, r}
 		heap.Push(h, t)
 	}
 
 	return heap.Pop(h).(*Node)
 }
 
+func copyAppend(a []rune, v rune) []rune {
+	b := append([]rune(nil), a...)
+	return append(b, v)
+}
+
+func dfs(t *Node, f func(*Node, []rune), p []rune) {
+	if t == nil {
+		return
+	} else {
+		dfs(t.left, f, copyAppend(p, '0'))
+		f(t, p)
+		dfs(t.right, f, copyAppend(p, '1'))
+	}
+}
+
+func computeCodeTable(t *Node) map[rune]string {
+	r := make(map[rune]string)
+
+	visit := func(n *Node, p []rune) {
+		if n.c != NULLCHAR {
+			r[n.c] = string(p)
+		}
+	}
+
+	dfs(t, visit, []rune{})
+	return r
+}
+
+func huffmanEncode(encoder map[rune]string, s string) string {
+	r := []rune{}
+	for _, c := range s {
+		r = append(r, []rune(encoder[c])...)
+	}
+	return string(r)
+}
+
+func decodeChar(t *Node, bs string) (rune, string) {
+	if t.c != NULLCHAR {
+		return t.c, bs
+	} else {
+		if bs[0] == '0' {
+			return decodeChar(t.left, bs[1:])
+		} else {
+			return decodeChar(t.right, bs[1:])
+		}
+	}
+}
+
+func huffmanDecode(decoder *Node, bs string) string {
+	r := []rune{}
+	for len(bs) != 0 {
+		var c rune
+		c, bs = decodeChar(decoder, bs)
+		r = append(r, c)
+	}
+	return string(r)
+}
+
 func main() {
-	s := "foo bar baz bee"
-	t := computeCodeTree(s)
-	fmt.Println("vim-go", t)
+	input := "foo bar baz bee"
+	decoder := computeCodeTree(input)
+	encoder := computeCodeTable(decoder)
+	fmt.Println("encoder:", encoder)
+	encodedData := huffmanEncode(encoder, input)
+	fmt.Println("encoded data:", encodedData, "len:", len(encodedData))
+	decodedData := huffmanDecode(decoder, encodedData)
+	fmt.Println("decoded data:", decodedData, "len:", len(decodedData)*8)
 }
