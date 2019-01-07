@@ -74,7 +74,7 @@ def decode_char(t: Node, bs: str) -> Tuple[str, str]:
             return decode_char(t.right, bs[1:])
 
 
-def huffman_decode(decoder: Optional[Node], bs: str):
+def huffman_decode(decoder: Optional[Node], bs: str) -> str:
     assert decoder is not None
     r = []
     while bs:
