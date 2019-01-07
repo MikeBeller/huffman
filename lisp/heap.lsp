@@ -1,5 +1,5 @@
 
-(define HEAPSIZE 8)
+(define HEAPSIZE 64)
 
 (define (make-heap-from-vector v . args)
     (let ((lefunc (if (null? args) <= (car args))))
@@ -16,4 +16,13 @@
 (define (heap:len h) (aref h 1))
 (define (heap:func h) (aref h 2))
 
+(let ((h (make-heap)))
+  (assert (equal? (heap:vec h) (vector.alloc HEAPSIZE)))
+  (assert (eq? (heap:len h) 0))
+  (assert (eq? (heap:func h) <=)))
+
+(let ((h (make-heap >=)))
+  (assert (equal? (heap:vec h) (vector.alloc HEAPSIZE)))
+  (assert (eq? (heap:len h) 0))
+  (assert (eq? (heap:func h) >=)))
 
