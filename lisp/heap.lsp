@@ -16,6 +16,14 @@
 (define (heap:len h) (aref h 1))
 (define (heap:func h) (aref h 2))
 
+(define (heap:parent n) (fixnum (/ (- n 1) 2)))
+(assert (eq? (heap:parent 1) 0))
+(assert (eq? (heap:parent 2) 0))
+(assert (eq? (heap:parent 8) 3))
+
+(define (heap:left n) (+ 1 (* n 2)))
+(define (heap:right n) (+ 2 (* n 2)))
+
 (let ((h (make-heap)))
   (assert (equal? (heap:vec h) (vector.alloc HEAPSIZE)))
   (assert (eq? (heap:len h) 0))
@@ -25,4 +33,13 @@
   (assert (equal? (heap:vec h) (vector.alloc HEAPSIZE)))
   (assert (eq? (heap:len h) 0))
   (assert (eq? (heap:func h) >=)))
+
+(define (do-heapify h)
+  (let ((v (heap:vec h))
+        (l (heap:len h))
+        (ltf (heap:func h)))
+    (do ((n (heap:parent l) (- n 1))) ((< n 0))
+      (heap:swap-if-needed h n (heap:left n))
+      (if (heap:right-child-exists h n)
+        (heap:swap-if-needed h n (heap:right n))))))
 
