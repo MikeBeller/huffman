@@ -6,8 +6,9 @@
       (vector v 0 lefunc)))
 
 (define (heapify v . args)
-  (let ((h (apply 'make-heap-from-vector (cons v args))))
-    (do-heapify h)))
+  (let ((h (apply make-heap-from-vector (cons v args))))
+    (do-heapify h)
+    h))
 
 (define (make-heap . args)
   (apply make-heap-from-vector (cons (vector.alloc HEAPSIZE) args)))
@@ -34,6 +35,21 @@
   (assert (eq? (heap:len h) 0))
   (assert (eq? (heap:func h) >=)))
 
+(define (heap:right-child-exists h n)
+  (< (heap:right n) (heap:len h)))
+
+(define (aswap! v i j)
+  (let ((vi (aref v i))
+        (vj (aref v j)))
+    (aset! v j vi)
+    (aset! v i vj)))
+
+(define (heap:swap-if-needed h n k)
+  (let ((v (heap:vec h))
+        (lt (heap:func h)))
+    (if (lt (aref v k) (aref v n))
+      (aswap! v n k))))
+
 (define (do-heapify h)
   (let ((v (heap:vec h))
         (l (heap:len h))
@@ -42,4 +58,7 @@
       (heap:swap-if-needed h n (heap:left n))
       (if (heap:right-child-exists h n)
         (heap:swap-if-needed h n (heap:right n))))))
+
+
+(print (heapify [10 3 7]))
 
