@@ -1,4 +1,4 @@
-import DataStructures: BinaryMinHeap
+import DataStructures: BinaryMinHeap, nil, cons
 
 const NULLCHAR = '\x7f'
 
@@ -11,7 +11,7 @@ end
 
 Base.isless(a::Node, b::Node) = a.freq < b.freq
 
-function compute_code_tree(s::String)::Node
+function compute_code_tree(s::String)::Union{Node,Nothing}
     d = Dict{Char,Int}()
     for c in s
         d[c] = get(d, c, 0) + 1
@@ -28,9 +28,26 @@ function compute_code_tree(s::String)::Node
         push!(h, Node(n1.freq + n2.freq, NULLCHAR, n1, n2))
     end
 
-    tree = pop!(h)
-    return tree
+    if length(h) == 0
+        nothing
+    else
+        pop!(h)
+    end
 end
+
+function compute_code_table(decoder::Union{Node,Nothing})::Dict{Char,String}
+    r = Dict{Char,String}()
+
+    visit = (n::Node, p::LinkedList{Char}) => 
+        if n.c != NULLCHAR
+            r[n.c] = join(p, "")
+        end
+
+        dfs(t, visit, Nil{Char}())
+    r
+end
+
+
 
 s = "foo bar baz bee"
 decoder = compute_code_tree(s)
