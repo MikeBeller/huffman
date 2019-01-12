@@ -43,7 +43,7 @@ function compute_code_table(decoder::Union{Node,Nothing})::Dict{Char,String}
             r[n.c] = join(p, "")
         end
 
-        dfs(t, visit, Nil{Char}())
+    dfs(t, visit, Nil{Char}())
     r
 end
 
