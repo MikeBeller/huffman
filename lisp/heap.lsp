@@ -16,11 +16,13 @@
 (define (heap:vec h) (aref h 0))
 (define (heap:len h) (aref h 1))
 (define (heap:func h) (aref h 2))
+(define (heap:get h i) (aref (heap:vec h) i))
 
 (define (heap:parent n) (fixnum (/ (- n 1) 2)))
 (assert (eq? (heap:parent 1) 0))
 (assert (eq? (heap:parent 2) 0))
 (assert (eq? (heap:parent 8) 3))
+(define (heap:has-parent n) (> n 0))
 
 (define (heap:left n) (+ 1 (* n 2)))
 (define (heap:right n) (+ 2 (* n 2)))
@@ -37,6 +39,9 @@
 
 (define (heap:right-child-exists h n)
   (< (heap:right n) (heap:len h)))
+
+(define (heap:left-child-exists h n)
+  (< (heap:left n) (heap:len h)))
 
 (define (aswap! v i j)
   (let ((vi (aref v i))
@@ -59,6 +64,11 @@
       (if (heap:right-child-exists h n)
         (heap:swap-if-needed h n (heap:right n))))))
 
-
-(print (heapify [10 3 7]))
+(define (heap:verify h i)
+  (if (>= i (heap:len h)) #t)
+  (if (heap:has-parent i)
+    (if (not ((heap:func h) (heap:get h (heap:parent i)) (heap:val h i)))
+      #f
+      (and (heap:verify h (heap:left i))
+           (heap:verify h (heap:right i))))))
 
